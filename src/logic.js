@@ -26,7 +26,9 @@ const KEYWORD_MAP = [
   { words: ["restless", "bold", "energetic", "excited"], genre: "Adventure" },
   { words: ["cozy", "calm", "relaxed", "sleepy", "comfort"], genre: "Cozy Mystery" },
   { words: ["reflective", "quiet", "nostalgic", "thoughtful"], genre: "Slice of Life" },
-  { words: ["learn", "curiousmind", "factual", "real"], genre: "Documentary" },
+  // "curiousmind" was a merged non-word that could never actually match real
+  // user input; "educational" and "informative" are realistic mood words.
+  { words: ["learn", "educational", "informative", "factual", "real"], genre: "Documentary" },
 ];
 
 function looksUnusable(text) {
