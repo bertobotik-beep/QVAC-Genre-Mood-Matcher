@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>QVAC Genre Mood Matcher</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: linear-gradient(160deg, #0f2027 0%, #1c3f4a 100%);
+    font-family: system-ui, -apple-system, sans-serif;
+    color: #dff5f2;
+    display: flex;
+    justify-content: center;
+    padding: 46px 20px;
+  }
+  .wrap { width: 100%; max-width: 520px; text-align: center; }
+  .icon { font-size: 2rem; margin-bottom: 4px; }
+  h1 { font-size: 1.6rem; margin: 0 0 6px; color: #6fd8c7; font-weight: 800; }
+  .subtitle { color: #a4c9c4; margin-bottom: 24px; font-size: 0.9rem; }
+  .card {
+    background: #16333a;
+    border: 2px solid #2c5b62;
+    border-radius: 20px;
+    padding: 30px 26px;
+  }
+  input[type=text] {
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: 12px;
+    border: 2px solid #2c5b62;
+    background: #0f2027;
+    color: #dff5f2;
+    font-family: inherit;
+    font-size: 1rem;
+    margin-bottom: 16px;
+    text-align: center;
+  }
+  input[type=text]::placeholder { color: #6c9b96; }
+  button.action {
+    padding: 12px 28px;
+    border: none;
+    border-radius: 999px;
+    font-size: 1rem;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    background: #6fd8c7;
+    color: #0f2027;
+    box-shadow: 0 5px 0 #3a9b8c;
+  }
+  button.action:active { transform: translateY(3px); box-shadow: 0 2px 0 #3a9b8c; }
+  button.action:disabled { opacity: 0.4; cursor: not-allowed; }
+  .status { margin-top: 14px; font-size: 0.85rem; color: #a4c9c4; min-height: 1.2em; }
+  .genre-badge {
+    display: inline-block;
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: #0f2027;
+    background: #6fd8c7;
+    border-radius: 14px;
+    padding: 8px 22px;
+    margin: 18px 0 12px;
+  }
+  .reason { font-size: 1rem; line-height: 1.6; color: #dff5f2; }
+  .footer-note { color: #a4c9c4; font-size: 0.78rem; margin-top: 20px; }
+  .spinner {
+    display: inline-block;
+    width: 13px; height: 13px;
+    border: 2px solid #2c5b62;
+    border-top-color: #6fd8c7;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    vertical-align: middle;
+    margin-right: 8px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="icon">🎬</div>
+    <h1>Genre Mood Matcher</h1>
+    <p class="subtitle">Describe your mood, get a movie/book genre recommendation — never a title. 100% on-device.</p>
+
+    <div class="card">
+      <input type="text" id="mainInput" placeholder="e.g. restless and craving an escape from routine" />
+      <button class="action" id="generateBtn">Match My Mood</button>
+      <div class="status" id="status"></div>
+      <div id="resultBox"></div>
+    </div>
+
+    <p class="footer-note">Everything runs locally on your machine. No text ever leaves this device.</p>
+  </div>
+
+  <script>
+    function escapeHtml(str) {
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+
+    const mainInput = document.getElementById('mainInput');
+    const generateBtn = document.getElementById('generateBtn');
+    const status = document.getElementById('status');
+    const resultBox = document.getElementById('resultBox');
+
+    async function generate() {
+      const value = mainInput.value.trim();
+      if (!value) return;
+      generateBtn.disabled = true;
+      resultBox.innerHTML = '';
+      status.innerHTML = '<span class="spinner"></span>Matching your mood...';
+
+      try {
+        const res = await fetch('/api/match', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ mood: value }),
+        });
+        const data = await res.json();
+        if (data.error) throw new Error(data.error);
+
+        status.textContent = '';
+        resultBox.innerHTML = `
+          <div class="genre-badge">${escapeHtml(data.genre)}</div>
+          <div class="reason">${escapeHtml(data.reason)}</div>
+        `;
+      } catch (err) {
+        status.textContent = 'Error: ' + err.message;
+      } finally {
+        generateBtn.disabled = false;
+      }
+    }
+
+    generateBtn.addEventListener('click', generate);
+    mainInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') generate(); });
+  </script>
+</body>
+</html>

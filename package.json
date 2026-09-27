@@ -1,0 +1,25 @@
+{
+  "name": "qvac-genre-mood-matcher",
+  "version": "1.0.0",
+  "description": "Describe your current mood and an on-device AI recommends a movie/book genre (never specific titles) plus a one-line reason it fits. No cloud call, no API key.",
+  "type": "module",
+  "main": "src/gui.js",
+  "scripts": {
+    "start": "node src/gui.js",
+    "gui": "node src/gui.js"
+  },
+  "keywords": [
+    "qvac",
+    "on-device-ai",
+    "recommendation",
+    "llm",
+    "offline-ai"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "@qvac/sdk": "^0.19.0"
+  },
+  "engines": {
+    "node": ">=22.17"
+  }
+}
